@@ -16,7 +16,7 @@ class TcpService {
 
     String jsonCommand = jsonEncode(command);
 
-    _socket!.write(jsonCommand);
+    _socket!.write(jsonCommand + "\n");
     await _socket!.flush();
 
     print("Command sent: $jsonCommand");

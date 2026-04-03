@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'providers/wifi_provider.dart';
+import 'providers/device_provider.dart';
 import 'screens/home_screen.dart';
 
 
@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => WifiProvider()),
+        ChangeNotifierProvider(create: (_) => DeviceProvider()),
       ],
       child: MaterialApp(
         scaffoldMessengerKey: messengerKey,
