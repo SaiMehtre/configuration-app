@@ -16,7 +16,17 @@ class TcpService {
 
     String jsonCommand = jsonEncode(command);
 
-    _socket!.write(jsonCommand + "\n");
+    _socket!.listen(
+      (data) {
+        print("RESPONSE: ${utf8.decode(data)}");
+      },
+      onError: (error) {
+        print("SOCKET ERROR: $error");
+      },
+      onDone: () {
+        print("CONNECTION CLOSED");
+      },
+    );
     await _socket!.flush();
 
     print("Command sent: $jsonCommand");

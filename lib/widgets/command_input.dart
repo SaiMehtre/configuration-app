@@ -4,55 +4,66 @@ import 'package:provider/provider.dart';
 import '../providers/device_provider.dart';
 import '../main.dart';
 
-class CommandInput extends StatelessWidget {
+class CommandInput extends StatefulWidget {
   const CommandInput({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController controller = TextEditingController();
+  State<CommandInput> createState() => _CommandInputState();
+}
 
+class _CommandInputState extends State<CommandInput> {
+  final TextEditingController ssidController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    ssidController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  minLines: 1,
-                  maxLines: 5,
-                  decoration: const InputDecoration(
-                    hintText: "Enter command...",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  debugPrint("Command: ${controller.text}");
-                },
-                child: const Text("Send"),
-              )
-            ],
+          TextField(
+            controller: ssidController,
+            decoration: const InputDecoration(
+              labelText: "WiFi SSID",
+              border: OutlineInputBorder(),
+            ),
           ),
-
           const SizedBox(height: 10),
-
-          /// CONFIGURE DEVICE BUTTON
+          TextField(
+            controller: passwordController,
+            obscureText: true,
+            decoration: const InputDecoration(
+              labelText: "WiFi Password",
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () async {
-              final deviceProvider =
-                  Provider.of<DeviceProvider>(context, listen: false);
+              final ssid = ssidController.text.trim();
+              final password = passwordController.text.trim();
+
+              if (ssid.isEmpty || password.isEmpty) {
+                messengerKey.currentState?.showSnackBar(
+                  const SnackBar(content: Text("Enter SSID & Password")),
+                );
+                return;
+              }
 
               try {
-                await deviceProvider.connectToDevice();
+                final deviceProvider =
+                    Provider.of<DeviceProvider>(context, listen: false);
 
-                await deviceProvider.sendWifiConfig(
-                  "test",
-                  "12345678",
-                );
+                await deviceProvider.connectToDevice();
+                await Future.delayed(const Duration(milliseconds: 500));
+                await deviceProvider.sendWifiConfig(ssid, password);
 
                 messengerKey.currentState?.showSnackBar(
                   const SnackBar(content: Text("Command Sent")),

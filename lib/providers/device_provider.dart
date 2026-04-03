@@ -13,6 +13,7 @@ class DeviceProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       isConnected = false;
+      print("CONNECT ERROR: $e");
       rethrow;
     }
   }
