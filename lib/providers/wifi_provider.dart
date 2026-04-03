@@ -19,9 +19,19 @@ class WifiProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    await _service.connect(ssid, password);
+    bool result = await _service.connect(ssid, password);
 
-    connectedWifi = await _service.getCurrentWifi();
+    // wait for connection to settle
+    await Future.delayed(const Duration(seconds: 3));
+
+    String? current = await _service.getCurrentWifi();
+
+    if (current != null && current.contains(ssid)) {
+      connectedWifi = current;
+    } else {
+      connectedWifi = null;
+      throw Exception("Wrong password or connection failed");
+    }
 
     isLoading = false;
     notifyListeners();

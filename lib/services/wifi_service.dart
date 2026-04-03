@@ -18,6 +18,7 @@ class WifiService {
       ssid,
       password: password,
       security: NetworkSecurity.WPA,
+      joinOnce: true,
     );
   }
 
