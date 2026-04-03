@@ -8,7 +8,7 @@ class DeviceProvider extends ChangeNotifier {
 
   Future<void> connectToDevice() async {
     try {
-      await _tcpService.connect("192.168.1.144", 333);
+      await _tcpService.connect("192.168.1.144", 333); 
       isConnected = true;
       notifyListeners();
     } catch (e) {
