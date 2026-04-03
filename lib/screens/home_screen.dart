@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/wifi_network.dart';
 import '../providers/wifi_provider.dart';
+import '../providers/device_provider.dart';
 import '../widgets/password_dialog.dart';
 import '../widgets/command_input.dart';
 
@@ -16,10 +17,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-        Provider.of<WifiProvider>(context, listen: false).scanWifi());
-  }
 
+    Future.microtask(() async {
+      final wifiProvider =
+          Provider.of<WifiProvider>(context, listen: false);
+
+      final deviceProvider =
+          Provider.of<DeviceProvider>(context, listen: false);
+
+      await wifiProvider.scanWifi();
+
+      if (wifiProvider.connectedWifi == "VIO SMART SWITCH") {
+        await deviceProvider.connectToDevice();
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<WifiProvider>(context);

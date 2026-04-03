@@ -61,8 +61,6 @@ class _CommandInputState extends State<CommandInput> {
                 final deviceProvider =
                     Provider.of<DeviceProvider>(context, listen: false);
 
-                await deviceProvider.connectToDevice();
-                await Future.delayed(const Duration(milliseconds: 500));
                 await deviceProvider.sendWifiConfig(ssid, password);
 
                 messengerKey.currentState?.showSnackBar(
@@ -70,7 +68,7 @@ class _CommandInputState extends State<CommandInput> {
                 );
               } catch (e) {
                 messengerKey.currentState?.showSnackBar(
-                  const SnackBar(content: Text("Device connection failed")),
+                  SnackBar(content: Text("Error: $e")),
                 );
               }
             },
