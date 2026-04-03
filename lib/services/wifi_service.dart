@@ -2,13 +2,13 @@ import 'package:wifi_iot/wifi_iot.dart';
 import '../models/wifi_network.dart';
 
 class WifiService {
-  Future<List<WifiNetwork>> scanWifi() async {
+  Future<List<AppWifiNetwork>> scanWifi() async {
     final list = await WiFiForIoTPlugin.loadWifiList();
 
     return list.map((wifi) {
-      return WifiNetwork(
+      return AppWifiNetwork(
         ssid: wifi.ssid ?? "",
-        isSecure: wifi.capabilities.contains("WPA"),
+        isSecure: (wifi.capabilities ?? "").contains("WPA"),
       );
     }).toList();
   }

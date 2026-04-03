@@ -1,10 +1,14 @@
+import 'package:flutter/material.dart';
+
 class CommandInput extends StatelessWidget {
-  final TextEditingController controller = TextEditingController();
+  const CommandInput({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController controller = TextEditingController();
+
     return Padding(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       child: Row(
         children: [
           Expanded(
@@ -12,18 +16,18 @@ class CommandInput extends StatelessWidget {
               controller: controller,
               minLines: 1,
               maxLines: 5,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: "Enter command...",
                 border: OutlineInputBorder(),
               ),
             ),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           ElevatedButton(
             onPressed: () {
-              print("Command: ${controller.text}");
+              debugPrint("Command: ${controller.text}");
             },
-            child: Text("Send"),
+            child: const Text("Send"),
           )
         ],
       ),

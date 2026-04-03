@@ -3,7 +3,7 @@ import '../models/wifi_network.dart';
 import '../services/wifi_service.dart';
 
 class WifiProvider extends ChangeNotifier {
-  List<WifiNetwork> networks = [];
+  List<AppWifiNetwork> networks = [];
   String? connectedWifi;
   bool isLoading = false;
 

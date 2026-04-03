@@ -1,14 +1,19 @@
-class PasswordDialog extends StatefulWidget {
-  final WifiNetwork wifi;
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/wifi_network.dart';
+import '../providers/wifi_provider.dart';
 
-  const PasswordDialog({required this.wifi});
+class PasswordDialog extends StatefulWidget {
+  final AppWifiNetwork wifi;
+
+  const PasswordDialog({super.key, required this.wifi});
 
   @override
   State<PasswordDialog> createState() => _PasswordDialogState();
 }
 
 class _PasswordDialogState extends State<PasswordDialog> {
-  final controller = TextEditingController();
+  final TextEditingController controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +22,7 @@ class _PasswordDialogState extends State<PasswordDialog> {
       content: TextField(
         controller: controller,
         obscureText: true,
-        decoration: InputDecoration(labelText: "Password"),
+        decoration: const InputDecoration(labelText: "Password"),
       ),
       actions: [
         TextButton(
@@ -27,7 +32,7 @@ class _PasswordDialogState extends State<PasswordDialog> {
 
             Navigator.pop(context);
           },
-          child: Text("Connect"),
+          child: const Text("Connect"),
         )
       ],
     );
