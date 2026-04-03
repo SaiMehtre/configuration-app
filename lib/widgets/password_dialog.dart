@@ -27,17 +27,26 @@ class _PasswordDialogState extends State<PasswordDialog> {
       actions: [
         TextButton(
           onPressed: () async {
-            try {
-              await Provider.of<WifiProvider>(context, listen: false)
-                  .connectWifi(widget.wifi.ssid, controller.text);
+            final provider =
+                Provider.of<WifiProvider>(context, listen: false);
 
-              Navigator.pop(context);
+            Navigator.pop(context); // ✅ CLOSE DIALOG FIRST
+
+            try {
+              await provider.connectWifi(
+                widget.wifi.ssid,
+                controller.text,
+              );
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Connected successfully")),
+              );
             } catch (e) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Wrong password or connection failed")),
               );
             }
-          },
+},
           child: const Text("Connect"),
         )
       ],

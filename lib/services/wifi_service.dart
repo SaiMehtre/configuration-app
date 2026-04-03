@@ -14,6 +14,10 @@ class WifiService {
   }
 
   Future<bool> connect(String ssid, String password) async {
+
+    // Ensure WiFi is ON before connecting
+    await WiFiForIoTPlugin.setEnabled(true);
+    
     return await WiFiForIoTPlugin.connect(
       ssid,
       password: password,
