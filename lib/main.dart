@@ -4,6 +4,10 @@ import 'package:provider/provider.dart';
 import 'providers/wifi_provider.dart';
 import 'screens/home_screen.dart';
 
+
+final GlobalKey<ScaffoldMessengerState> messengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
 void main() {
   runApp(const MyApp());
 }
@@ -18,6 +22,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => WifiProvider()),
       ],
       child: MaterialApp(
+        scaffoldMessengerKey: messengerKey,
         debugShowCheckedModeBanner: false,
         title: 'Configuration App',
         home: HomeScreen(),

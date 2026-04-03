@@ -30,13 +30,13 @@ class WifiProvider extends ChangeNotifier {
       if (current != null && current.contains(ssid)) {
         connectedWifi = current;
       } else {
-        throw Exception("Wrong password or connection failed");
+        throw Exception("Connection Failed");
       }
     } catch (e) {
       connectedWifi = null;
       rethrow;
     } finally {
-      // ALWAYS STOP LOADER
+      //  ALWAYS STOP LOADER
       isLoading = false;
       notifyListeners();
     }
