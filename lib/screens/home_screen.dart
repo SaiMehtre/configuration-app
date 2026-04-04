@@ -54,9 +54,17 @@ class _HomeScreenState extends State<HomeScreen> {
               leading: const Icon(Icons.wifi, color: Colors.green),
             ),
 
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              "1. Connect to VIO SMART SWITCH\n2. Tap Connect",
+              textAlign: TextAlign.center,
+            ),
+          ),
+
           ListTile(
             title: Text(
-              "Device TCP Status: ${deviceProvider.isConnected ? "Connected" : deviceProvider.isConnecting ? "Connecting..." : "Not Connected"}",
+              "Device TCP Status: ${deviceProvider.isConnected ? "Connected" : deviceProvider.isConnecting ? "Connecting..." : "Disconnected"}",
               style: TextStyle(
                 color: deviceProvider.isConnected
                     ? Colors.green
@@ -66,23 +74,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            trailing: !deviceProvider.isConnected && !deviceProvider.isConnecting
-                ? ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        await deviceProvider.connectToDevice();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("TCP Connected!")),
-                        );
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("TCP connect failed: $e")),
-                        );
-                      }
-                    },
-                    child: const Text("Retry"),
-                  )
-                : null,
+            trailing: !deviceProvider.isConnected
+              ? ElevatedButton(
+                  onPressed: deviceProvider.isConnecting
+                    ? null
+                    : () async {
+                        try {
+                          await deviceProvider.connectToDevice();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Connected to device")),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Connection failed")),
+                          );
+                        }
+                      },
+                  child: Text(
+                    deviceProvider.isConnecting ? "Connecting..." : "Connect",
+                  ),
+                )
+              : const Icon(Icons.check_circle, color: Colors.green),
           ),
 
           Expanded(
