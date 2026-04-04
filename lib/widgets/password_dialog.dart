@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/wifi_network.dart';
 import '../providers/wifi_provider.dart';
+import '../providers/device_provider.dart';
 import '../main.dart'; 
 
 class PasswordDialog extends StatefulWidget {
@@ -28,24 +29,36 @@ class _PasswordDialogState extends State<PasswordDialog> {
       actions: [
         TextButton(
           onPressed: () async {
-            final provider =
-                Provider.of<WifiProvider>(context, listen: false);
+            final wifiProvider = Provider.of<WifiProvider>(context, listen: false);
+            final deviceProvider = Provider.of<DeviceProvider>(context, listen: false);
 
             Navigator.pop(context); // close dialog
 
             try {
-              await provider.connectWifi(
-                widget.wifi.ssid,
-                controller.text,
-              );
+              await wifiProvider.connectWifi(widget.wifi.ssid, controller.text);
 
-              messengerKey.currentState?.showSnackBar(
-                const SnackBar(content: Text("Connected successfully")),
-              );
+              // wait for IP assignment + hotspot stabilization
+              await Future.delayed(const Duration(seconds: 3));
+
+              if (widget.wifi.ssid == "VIO SMART SWITCH") {
+                try {
+                  await deviceProvider.connectToDevice();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("TCP Connected!")),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("TCP connect failed: $e")),
+                  );
+                }
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("WiFi Connected")),
+                );
+              }
             } catch (e) {
-              messengerKey.currentState?.showSnackBar(
-                const SnackBar(
-                    content: Text("Wrong password or connection failed")),
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Wrong password or connection failed")),
               );
             }
           },

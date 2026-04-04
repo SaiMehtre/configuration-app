@@ -22,42 +22,74 @@ class _HomeScreenState extends State<HomeScreen> {
       final wifiProvider =
           Provider.of<WifiProvider>(context, listen: false);
 
-      final deviceProvider =
-          Provider.of<DeviceProvider>(context, listen: false);
+      // final deviceProvider =
+      //     Provider.of<DeviceProvider>(context, listen: false);
 
       await wifiProvider.scanWifi();
 
-      if (wifiProvider.connectedWifi == "VIO SMART SWITCH") {
-        await deviceProvider.connectToDevice();
-      }
+      // if (wifiProvider.connectedWifi != null &&
+      //   wifiProvider.connectedWifi!.contains("VIO SMART SWITCH")) {
+      //   await deviceProvider.connectToDevice();
+      // }
     });
   }
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<WifiProvider>(context);
+    final wifiProvider = Provider.of<WifiProvider>(context);
+    final deviceProvider = Provider.of<DeviceProvider>(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text("Configuration App")),
       body: Column(
         children: [
-          if (provider.isLoading)
+          if (wifiProvider.isLoading)
             const Padding(
               padding: EdgeInsets.all(10),
               child: CircularProgressIndicator(),
             ),
 
-          if (provider.connectedWifi != null)
+          if (wifiProvider.connectedWifi != null)
             ListTile(
-              title: Text("Connected: ${provider.connectedWifi}"),
+              title: Text("Connected WiFi: ${wifiProvider.connectedWifi}"),
               leading: const Icon(Icons.wifi, color: Colors.green),
             ),
 
+          ListTile(
+            title: Text(
+              "Device TCP Status: ${deviceProvider.isConnected ? "Connected" : deviceProvider.isConnecting ? "Connecting..." : "Not Connected"}",
+              style: TextStyle(
+                color: deviceProvider.isConnected
+                    ? Colors.green
+                    : deviceProvider.isConnecting
+                        ? Colors.orange
+                        : Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            trailing: !deviceProvider.isConnected && !deviceProvider.isConnecting
+                ? ElevatedButton(
+                    onPressed: () async {
+                      try {
+                        await deviceProvider.connectToDevice();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("TCP Connected!")),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("TCP connect failed: $e")),
+                        );
+                      }
+                    },
+                    child: const Text("Retry"),
+                  )
+                : null,
+          ),
+
           Expanded(
             child: ListView.builder(
-              itemCount: provider.networks.length,
+              itemCount: wifiProvider.networks.length,
               itemBuilder: (context, index) {
-                final AppWifiNetwork wifi = provider.networks[index];
-
+                final wifi = wifiProvider.networks[index];
                 return ListTile(
                   title: Text(wifi.ssid),
                   trailing: const Icon(Icons.wifi),

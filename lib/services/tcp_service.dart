@@ -13,19 +13,19 @@ class TcpService {
         timeout: const Duration(seconds: 5),
       );
 
-      print("✅ Connected to device");
+      print("Connected to device");
 
       // 🔥 Listen ONLY ONCE
       if (!_isListening) {
         _socket!.listen(
           (data) {
-            print("📩 RESPONSE: ${utf8.decode(data)}");
+            print(" RESPONSE: ${utf8.decode(data)}");
           },
           onError: (error) {
-            print("❌ SOCKET ERROR: $error");
+            print(" SOCKET ERROR: $error");
           },
           onDone: () {
-            print("🔌 CONNECTION CLOSED");
+            print("CONNECTION CLOSED");
             _isListening = false;
             _socket = null;
           },
@@ -34,9 +34,10 @@ class TcpService {
         _isListening = true;
       }
     } catch (e) {
-      print("❌ CONNECT ERROR: $e");
+      print("CONNECT ERROR: $e");
       rethrow;
     }
+    print("Trying to connect to $ip:$port");
   }
 
   Future<void> sendCommand(Map<String, dynamic> command) async {
@@ -46,15 +47,11 @@ class TcpService {
 
     try {
       String jsonCommand = jsonEncode(command);
-
-      // 🔥 IMPORTANT: newline for ESP parsing
       _socket!.write("$jsonCommand\n");
-
       await _socket!.flush();
-
-      print("🚀 Command sent: $jsonCommand");
+      print("Command sent: $jsonCommand");
     } catch (e) {
-      print("❌ SEND ERROR: $e");
+      print("SEND ERROR: $e");
       rethrow;
     }
   }
@@ -63,6 +60,6 @@ class TcpService {
     _socket?.close();
     _socket = null;
     _isListening = false;
-    print("🔌 Disconnected");
+    print(" Disconnected");
   }
 }

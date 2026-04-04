@@ -57,12 +57,18 @@ class _CommandInputState extends State<CommandInput> {
                 return;
               }
 
+              final deviceProvider = Provider.of<DeviceProvider>(context, listen: false);
+
+              // check TCP connection
+              if (!deviceProvider.isConnected) {
+                messengerKey.currentState?.showSnackBar(
+                  const SnackBar(content: Text("Device not connected")),
+                );
+                return;
+              }
+
               try {
-                final deviceProvider =
-                    Provider.of<DeviceProvider>(context, listen: false);
-
                 await deviceProvider.sendWifiConfig(ssid, password);
-
                 messengerKey.currentState?.showSnackBar(
                   const SnackBar(content: Text("Command Sent")),
                 );

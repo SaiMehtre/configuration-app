@@ -16,29 +16,28 @@ class WifiProvider extends ChangeNotifier {
   }
 
   Future<void> connectWifi(String ssid, String password) async {
-    isLoading = true;
-    notifyListeners();
+  isLoading = true;
+  notifyListeners();
 
-    try {
-      await _service.connect(ssid, password);
+  try {
+    await _service.connect(ssid, password);
 
-      // wait max 5 sec
-      await Future.delayed(const Duration(seconds: 5));
+    // wait max 5 sec for network to be ready
+    await Future.delayed(const Duration(seconds: 5));
 
-      String? current = await _service.getCurrentWifi();
-
-      if (current != null && current.contains(ssid)) {
-        connectedWifi = current;
-      } else {
-        throw Exception("Connection Failed");
-      }
-    } catch (e) {
+    String? current = await _service.getCurrentWifi();
+    if (current != null && current.replaceAll('"', '').trim().contains(ssid)) {
+      connectedWifi = ssid; // correct SSID without quotes
+    } else {
       connectedWifi = null;
-      rethrow;
-    } finally {
-      //  ALWAYS STOP LOADER
-      isLoading = false;
-      notifyListeners();
+      throw Exception("Connection Failed"); // triggers snackbar
     }
+  } catch (e) {
+    connectedWifi = null;
+    rethrow;
+  } finally {
+    isLoading = false;
+    notifyListeners();
   }
+}
 }
