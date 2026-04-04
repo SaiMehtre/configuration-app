@@ -22,17 +22,10 @@ class _HomeScreenState extends State<HomeScreen> {
       final wifiProvider =
           Provider.of<WifiProvider>(context, listen: false);
 
-      // final deviceProvider =
-      //     Provider.of<DeviceProvider>(context, listen: false);
-
       await wifiProvider.scanWifi();
-
-      // if (wifiProvider.connectedWifi != null &&
-      //   wifiProvider.connectedWifi!.contains("VIO SMART SWITCH")) {
-      //   await deviceProvider.connectToDevice();
-      // }
     });
   }
+
   @override
   Widget build(BuildContext context) {
     final wifiProvider = Provider.of<WifiProvider>(context);
@@ -42,18 +35,23 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(title: const Text("Configuration App")),
       body: Column(
         children: [
+          /// 🔄 Loader
           if (wifiProvider.isLoading)
             const Padding(
               padding: EdgeInsets.all(10),
               child: CircularProgressIndicator(),
             ),
 
+          /// 📶 Connected WiFi (quotes removed)
           if (wifiProvider.connectedWifi != null)
             ListTile(
-              title: Text("Connected WiFi: ${wifiProvider.connectedWifi}"),
+              title: Text(
+                "Connected WiFi: ${wifiProvider.connectedWifi!.replaceAll('"', '')}",
+              ),
               leading: const Icon(Icons.wifi, color: Colors.green),
             ),
 
+          /// 📌 Instructions
           const Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
@@ -62,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
+          /// 🔌 TCP Status + Connect Button
           ListTile(
             title: Text(
               "Device TCP Status: ${deviceProvider.isConnected ? "Connected" : deviceProvider.isConnecting ? "Connecting..." : "Disconnected"}",
@@ -75,33 +74,40 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             trailing: !deviceProvider.isConnected
-              ? ElevatedButton(
-                  onPressed: deviceProvider.isConnecting
-                    ? null
-                    : () async {
-                        try {
-                          await deviceProvider.connectToDevice();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Connected to device")),
-                          );
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Connection failed")),
-                          );
-                        }
-                      },
-                  child: Text(
-                    deviceProvider.isConnecting ? "Connecting..." : "Connect",
-                  ),
-                )
-              : const Icon(Icons.check_circle, color: Colors.green),
+                ? ElevatedButton(
+                    /// ❌ disable when connecting
+                    onPressed: deviceProvider.isConnecting
+                        ? null
+                        : () async {
+                            try {
+                              await deviceProvider.connectToDevice();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text("Connected to device")),
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text("Connection failed")),
+                              );
+                            }
+                          },
+                    child: Text(
+                      deviceProvider.isConnecting
+                          ? "Connecting..."
+                          : "Connect",
+                    ),
+                  )
+                : const Icon(Icons.check_circle, color: Colors.green),
           ),
 
+          /// 📡 WiFi List
           Expanded(
             child: ListView.builder(
               itemCount: wifiProvider.networks.length,
               itemBuilder: (context, index) {
-                final wifi = wifiProvider.networks[index];
+                final AppWifiNetwork wifi = wifiProvider.networks[index];
+
                 return ListTile(
                   title: Text(wifi.ssid),
                   trailing: const Icon(Icons.wifi),
@@ -111,7 +117,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          const CommandInput(),
+          /// ⚠️ IMPORTANT: CommandInput tabhi kaam kare jab TCP connected
+          AbsorbPointer(
+            absorbing: !deviceProvider.isConnected,
+            child: Opacity(
+              opacity: deviceProvider.isConnected ? 1 : 0.4,
+              child: const CommandInput(),
+            ),
+          ),
         ],
       ),
     );

@@ -3,8 +3,6 @@ import 'package:provider/provider.dart';
 import '../models/wifi_network.dart';
 import '../providers/wifi_provider.dart';
 import '../providers/device_provider.dart';
-import '../main.dart'; 
-
 class PasswordDialog extends StatefulWidget {
   final AppWifiNetwork wifi;
 
