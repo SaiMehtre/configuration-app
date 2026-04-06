@@ -5,6 +5,7 @@ class DeviceProvider extends ChangeNotifier {
   final TcpService _tcpService = TcpService();
   bool isConnected = false;
   bool isConnecting = false;
+  Stream<String> get logs => _tcpService.logs;
 
   Future<void> connectToDevice() async {
     const int retries = 3;

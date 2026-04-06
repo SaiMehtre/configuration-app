@@ -1,43 +1,44 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 
 class TcpService {
   Socket? _socket;
   bool _isListening = false;
 
+  /// 🔥 Stream for logs
+  final StreamController<String> _logController =
+      StreamController.broadcast();
+
+  Stream<String> get logs => _logController.stream;
+
   Future<void> connect(String ip, int port) async {
-    try {
-      _socket = await Socket.connect(
-        ip,
-        port,
-        timeout: const Duration(seconds: 5),
+    _socket = await Socket.connect(
+      ip,
+      port,
+      timeout: const Duration(seconds: 10),
+    );
+
+    _logController.add("✅ Connected to $ip:$port");
+
+    if (!_isListening) {
+      _socket!.listen(
+        (data) {
+          final msg = utf8.decode(data);
+          _logController.add("📥 $msg");
+        },
+        onError: (error) {
+          _logController.add("❌ ERROR: $error");
+        },
+        onDone: () {
+          _logController.add("🔌 Disconnected");
+          _socket = null;
+          _isListening = false;
+        },
       );
 
-      print("Connected to device");
-
-      // 🔥 Listen ONLY ONCE
-      if (!_isListening) {
-        _socket!.listen(
-          (data) {
-            print(" RESPONSE: ${utf8.decode(data)}");
-          },
-          onError: (error) {
-            print(" SOCKET ERROR: $error");
-          },
-          onDone: () {
-            print("CONNECTION CLOSED");
-            _isListening = false;
-            _socket = null;
-          },
-        );
-
-        _isListening = true;
-      }
-    } catch (e) {
-      print("CONNECT ERROR: $e");
-      rethrow;
+      _isListening = true;
     }
-    print("Trying to connect to $ip:$port");
   }
 
   Future<void> sendCommand(Map<String, dynamic> command) async {
@@ -45,21 +46,18 @@ class TcpService {
       throw Exception("Socket not connected");
     }
 
-    try {
-      String jsonCommand = jsonEncode(command);
-      _socket!.write("$jsonCommand\n");
-      await _socket!.flush();
-      print("Command sent: $jsonCommand");
-    } catch (e) {
-      print("SEND ERROR: $e");
-      rethrow;
-    }
+    String jsonCommand = jsonEncode(command);
+
+    _socket!.write("$jsonCommand\n");
+    await _socket!.flush();
+
+    _logController.add("📤 $jsonCommand");
   }
 
   void disconnect() {
     _socket?.close();
     _socket = null;
     _isListening = false;
-    print(" Disconnected");
+    _logController.add("🔌 Manually disconnected");
   }
 }

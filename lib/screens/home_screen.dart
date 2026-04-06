@@ -5,6 +5,7 @@ import '../providers/wifi_provider.dart';
 import '../providers/device_provider.dart';
 import '../widgets/password_dialog.dart';
 import '../widgets/command_input.dart';
+import '../widgets/tcp_console.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -116,6 +117,9 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
+
+          const SizedBox(height: 10),
+          const TcpConsole(),
 
           /// ⚠️ IMPORTANT: CommandInput tabhi kaam kare jab TCP connected
           AbsorbPointer(
