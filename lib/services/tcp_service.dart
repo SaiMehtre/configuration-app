@@ -19,16 +19,18 @@ class TcpService {
       timeout: const Duration(seconds: 10),
     );
 
-    _logController.add("✅ Connected to $ip:$port");
+    _logController.add("🔌 Connected to $ip:$port");
 
     if (!_isListening) {
       _socket!.listen(
         (data) {
-          final msg = utf8.decode(data);
-          _logController.add("📥 $msg");
+          final msg = utf8.decode(data).trim();
+          if (msg.isNotEmpty) {
+            _logController.add("📥 $msg");
+          }
         },
         onError: (error) {
-          _logController.add("❌ ERROR: $error");
+          _logController.add("❌ ERROR: ${error.toString()}");
         },
         onDone: () {
           _logController.add("🔌 Disconnected");
@@ -55,9 +57,13 @@ class TcpService {
   }
 
   void disconnect() {
-    _socket?.close();
+    _socket?.destroy();
     _socket = null;
     _isListening = false;
     _logController.add("🔌 Manually disconnected");
+  }
+
+  void dispose() {
+    _logController.close();
   }
 }
