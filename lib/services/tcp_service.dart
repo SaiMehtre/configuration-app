@@ -64,6 +64,7 @@ class TcpService {
   }
 
   void dispose() {
+    disconnect();
     _logController.close();
   }
 }

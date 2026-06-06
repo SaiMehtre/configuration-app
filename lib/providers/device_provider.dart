@@ -54,4 +54,13 @@ class DeviceProvider extends ChangeNotifier {
 
     await _tcpService.sendCommand(command);
   }
+
+  void disconnect() {
+    _tcpService.disconnect();
+
+    isConnected = false;
+    isConnecting = false;
+
+    notifyListeners();
+  }
 }

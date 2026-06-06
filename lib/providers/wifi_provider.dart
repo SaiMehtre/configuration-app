@@ -15,29 +15,56 @@ class WifiProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> connectWifi(String ssid, String password) async {
-  isLoading = true;
-  notifyListeners();
+  Future<void> refreshConnectedWifi() async {
+    String? wifi = await _service.getCurrentWifi();
 
-  try {
-    await _service.connect(ssid, password);
+    if (wifi != null) {
+      wifi = wifi.replaceAll('"', '').trim();
 
-    // wait max 5 sec for network to be ready
-    await Future.delayed(const Duration(seconds: 5));
+      /// ignore temporary invalid values
+      if (wifi.isEmpty ||
+          wifi.toLowerCase() == "unknown ssid" ||
+          wifi.toLowerCase() == "<unknown ssid>") {
+        return;
+      }
 
-    String? current = await _service.getCurrentWifi();
-    if (current != null && current.replaceAll('"', '').trim().contains(ssid)) {
-      connectedWifi = ssid; // correct SSID without quotes
-    } else {
-      connectedWifi = null;
-      throw Exception("Connection Failed"); // triggers snackbar
+      connectedWifi = wifi;
+      notifyListeners();
     }
-  } catch (e) {
-    connectedWifi = null;
-    rethrow;
-  } finally {
-    isLoading = false;
+  }
+
+  Future<void> connectWifi(String ssid, String password) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      await _service.connect(ssid, password);
+
+      // wait max 5 sec for network to be ready
+      await Future.delayed(const Duration(seconds: 5));
+
+      String? current = await _service.getCurrentWifi();
+      if (current != null && current.replaceAll('"', '').trim().contains(ssid)) {
+        connectedWifi = ssid; // correct SSID without quotes
+      } else {
+        connectedWifi = null;
+        throw Exception("Connection Failed"); // triggers snackbar
+      }
+    } catch (e) {
+      connectedWifi = null;
+      rethrow;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // void clearConnectedWifi() {
+  //   connectedWifi = null;
+  //   notifyListeners();
+  // }
+  void clearConnectedWifi() {
+    connectedWifi = "Switching Network...";
     notifyListeners();
   }
-}
 }
